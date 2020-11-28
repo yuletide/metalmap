@@ -36,10 +36,11 @@
         // style: 'mapbox://styles/yuletide/cjtoi5fhy33pl1fp10uxlol6l',
         style: 'mapbox://styles/mapbox/dark-v10?fresh=true',
         center: [-103.59179687498357, 40.66995747013945],
-        zoom: 3
+        zoom: 3,
+        hash: true,
       });
 
-      map.on('load', function() {
+      map.on('load', function () {
         // Add a new source from our GeoJSON data and set the
         // 'cluster' option to true. GL-JS will add the point_count property to your source data.
         // map.addSource('earthquakes', {
@@ -53,26 +54,25 @@
         //   clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
         // });
         map.addSource('bands', {
-            type: 'vector',
-            url: 'mapbox://yuletide.bv4hnbw3',
-            // cluster: true
-        })
+          type: 'vector',
+          url: 'mapbox://yuletide.bv4hnbw3',
+          // cluster: true
+        });
 
         map.addLayer({
           id: 'clusters',
           type: 'circle',
           source: 'bands',
-          "source-layer": 'bands',
+          'source-layer': 'bands',
           filter: ['has', 'point_count'],
           paint: {
-            'circle-color': 
-                'HSLA(6, 100%, 43%, 55%)'
+            'circle-color': 'HSLA(6, 100%, 43%, 55%)',
             // Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
             // with three steps to implement three types of circles:
             //   * Blue, 20px circles when point count is less than 100
             //   * Yellow, 30px circles when point count is between 100 and 750
             //   * Pink, 40px circles when point count is greater than or equal to 750
-                // '#EB3223'
+            // '#EB3223'
             //  [ 'step',
             //   ['get', 'point_count'],
             //   '#51bbd6',
@@ -80,7 +80,6 @@
             //   '#f1f075',
             //   750,
             //   '#f28cb1']
-            ,
             'circle-radius': [
               'step',
               ['get', 'point_count'],
@@ -92,22 +91,22 @@
               2500,
               50,
               10000,
-              65
-            ]
-          }
+              65,
+            ],
+          },
         });
 
         map.addLayer({
           id: 'cluster-count',
           type: 'symbol',
           source: 'bands',
-          "source-layer": 'bands',
+          'source-layer': 'bands',
           filter: ['has', 'point_count'],
           layout: {
             'text-field': '{point_count}',
             'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-            'text-size': 12
-          }
+            'text-size': 12,
+          },
         });
 
         map.addLayer({
@@ -117,36 +116,52 @@
           'source-layer': 'bands',
           filter: ['!', ['has', 'point_count']],
           paint: {
-            // 'circle-color': '#11b4da',
-            'circle-color': '#EB3223',
+            'circle-color': 'HSLA(6, 100%, 43%, 75%)',
             'circle-radius': 4,
             'circle-stroke-width': 1,
-            'circle-stroke-color': '#000'
-          }
+            'circle-stroke-color': '#000',
+          },
+        });
+
+        map.addLayer({
+          id: 'unclustered-point-label',
+          type: 'symbol',
+          source: 'bands',
+          'source-layer': 'bands',
+          filter: ['!', ['has', 'point_count']],
+          layout: {
+            'text-field': '{name}',
+            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+            'text-size': 12,
+            // 'text-color': 'white',
+          },
+          paint: {
+            'text-color': '#ffffff',
+          },
         });
 
         // inspect a cluster on click
-        map.on('click', 'clusters', function(e) {
+        map.on('click', 'clusters', function (e) {
           var features = map.queryRenderedFeatures(e.point, {
-            layers: ['clusters']
+            layers: ['clusters'],
           });
           var clusterId = features[0].properties.cluster_id;
           map
             .getSource('bands')
-            .getClusterExpansionZoom(clusterId, function(err, zoom) {
+            .getClusterExpansionZoom(clusterId, function (err, zoom) {
               if (err) return;
 
               map.easeTo({
                 center: features[0].geometry.coordinates,
-                zoom: zoom
+                zoom: zoom,
               });
             });
         });
 
-        map.on('mouseenter', 'clusters', function() {
+        map.on('mouseenter', 'clusters', function () {
           map.getCanvas().style.cursor = 'pointer';
         });
-        map.on('mouseleave', 'clusters', function() {
+        map.on('mouseleave', 'clusters', function () {
           map.getCanvas().style.cursor = '';
         });
       });
