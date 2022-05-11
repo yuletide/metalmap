@@ -151,19 +151,36 @@ body { margin: 0; padding: 0; }
             }
         });
 
-        // Create a popup, but don't add it to the map yet.
         const popup = new mapboxgl.Popup({
             closeButton: false,
             closeOnClick: false
         });
 
-        map.on('mouseenter', 'places', (e) => {
+        map.on('mousemove', 'choropleth-fill', (e) => {
             // Change the cursor style as a UI indicator.
             map.getCanvas().style.cursor = 'pointer';
 
             // Copy coordinates array.
-            const coordinates = e.features[0].geometry.coordinates.slice();
-            const description = e.features[0].properties.description;
+            // const coordinates = e.features[0].geometry.coordinates.slice();
+            const coordinates = [e.lngLat.lng, e.lngLat.lat];
+            // console.log(e.features[0].properties)
+            const properties = e.features[0].properties;
+
+            const html = `<h3>${properties.name}, ${properties.iso_a2}</h3>
+                <div><b>${+properties.bands_p100.toFixed(2)}</b> bands per 100k</div>
+                <div>${properties.bands_coun} total bands</div>
+                `;
+            // {
+            //     "name": "Texas",
+            //     "iso_a2": "US",
+            //     "TOTAL_A_KM": 0,
+            //     "UN_2020_E": 29840257,
+            //     "adm1_code": "USA-3536",
+            //     "admin": "United States of America",
+            //     "bands_coun": 1912,
+            //     "iso_3166_2": "US-TX",
+            //     "bands_p100": 6.40745151759249
+            // }
 
             // Ensure that if the map is zoomed out such that multiple
             // copies of the feature are visible, the popup appears
@@ -174,10 +191,10 @@ body { margin: 0; padding: 0; }
 
             // Populate the popup and set its coordinates
             // based on the feature found.
-            popup.setLngLat(coordinates).setHTML(description).addTo(map);
+            popup.setLngLat(coordinates).setHTML(html).addTo(map);
         });
 
-        map.on('mouseleave', 'places', () => {
+        map.on('mouseleave', 'choropleth-fill', () => {
             map.getCanvas().style.cursor = '';
             popup.remove();
         });
