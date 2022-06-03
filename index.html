@@ -221,7 +221,7 @@ body { margin: 0; padding: 0; }
     function togglePoints(){
       const layers = ['clusters', 'cluster-count', 'unclustered-point'];
       layers.map(layer => {
-        map.setLayoutProperty(layer, 'visibility', POINTS ? 'visible' : 'none');
+        map.setLayoutProperty(layer, 'visibility', POINTS ? 'none' : 'visible');
       });
       POINTS = !POINTS;
 
